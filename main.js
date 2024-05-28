@@ -4,7 +4,8 @@ const botonComprobarMatricula = document.querySelector('#botonComprobar');
 const inputComprobarMatricula = document.querySelector('#comprobarMatricula');
 let fragment = document.createDocumentFragment();
 let mensaje = document.querySelector("#mensaje");
-let matriculasBuscadas = []
+let matriculasBuscadas = JSON.parse(localStorage.getItem('matriculasFiltradas')) || []
+let botonLimpiar = document.querySelector('#botonLimpiar');
 const regEx = /^\d{3}\-[A-Z]{1}$/;
 mensaje.innerHTML = "<p>Ingresa una matricula para comprobar tus multas</p>"
 
@@ -67,6 +68,12 @@ botonComprobarMatricula.addEventListener("click", (evento) => {
     mostrarMultas(matricula)
 })
 
+botonLimpiar.addEventListener("click", (evento) => {
+    evento.preventDefault();
+    localStorage.clear();
+    pintarTabla();
+})
+
 //--FUNCIONES--//
 const validarMatricula = async (matriculaSolicitada) => {
     const matriculaValidada = regEx.test(matriculaSolicitada)
@@ -85,25 +92,33 @@ const buscarMultas = async (matriculaSolicitada) => {
     else throw (`La matricula ${matriculaSolicitada} no tiene multas asociadas`)
 }
 
-const mostrarMultas = async (matriculaSolictada) => {
+const mostrarMultas = async (matriculaSolicitada) => {
     try {
-        let validada = await validarMatricula(matriculaSolictada);
-        let buscada = await buscarMatricula(matriculaSolictada);
-        let multada = await buscarMultas(matriculaSolictada);
+        let validada = await validarMatricula(matriculaSolicitada);
+        let buscada = await buscarMatricula(matriculaSolicitada);
+        let multada = await buscarMultas(matriculaSolicitada);
 
-        return pintarTabla(matriculaSolictada)
+        return insertarDatos(matriculaSolicitada)
+        
     } catch (error) {
         return mensaje.innerHTML = error
     }
 }
 
-
-const pintarTabla = (matriculaSolicitada) => {
+const insertarDatos = (matriculaSolicitada)=>{
     const coche = arrayCoches.find(item => item.matricula == matriculaSolicitada)
     const multa = arrayMultas.find(item => item.matricula == matriculaSolicitada)?.multa
     console.log(multa)
     matriculasBuscadas.push({ ...coche, multas: multa })
     console.log(matriculasBuscadas)
+    localStorage.setItem('matriculasFiltradas', JSON.stringify(matriculasBuscadas))
+    pintarTabla()
+
+}
+
+const pintarTabla = () => {
+    cuerpoTabla.innerHTML='';
+    matriculasBuscadas = JSON.parse(localStorage.getItem('matriculasFiltradas')) || []
     matriculasBuscadas.forEach(({ matricula, modelo, propietario, multas }) => {
         tablaFila = document.createElement('tr');
         let tablaColumna1 = document.createElement('td');
@@ -119,6 +134,8 @@ const pintarTabla = (matriculaSolicitada) => {
         fragment.append(tablaFila);
     })
     cuerpoTabla.append(fragment)
+    inputComprobarMatricula.reset
 }
 
 
+pintarTabla();
