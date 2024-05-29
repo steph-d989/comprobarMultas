@@ -98,7 +98,7 @@ const mostrarMultas = async (matriculaSolicitada) => {
         let buscada = await buscarMatricula(matriculaSolicitada);
         let multada = await buscarMultas(matriculaSolicitada);
 
-        return insertarDatos(matriculaSolicitada)
+        insertarDatos(matriculaSolicitada)
         
     } catch (error) {
         return mensaje.innerHTML = error
@@ -128,7 +128,7 @@ const pintarTabla = () => {
         let tablaColumna3 = document.createElement('td');
         tablaColumna3.textContent = propietario
         let tablaColumna4 = document.createElement('td');
-        tablaColumna4.textContent = multas.join(", ")
+        tablaColumna4.textContent = multas.length
 
         tablaFila.append(tablaColumna1, tablaColumna2, tablaColumna3, tablaColumna4);
         fragment.append(tablaFila);
